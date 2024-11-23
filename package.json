@@ -2,6 +2,7 @@
   "name": "mi-ecommerce",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "webpack serve --open",
     "test:cucumber": "cucumber-js",

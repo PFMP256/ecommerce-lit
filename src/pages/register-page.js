@@ -78,9 +78,45 @@ export class RegisterPage extends LitElement {
     `;
   }
 
-  _handleSubmit(e) {
+  async _handleSubmit(e) {
     e.preventDefault();
-    // Aquí irá la lógica de registro
+    
+    const email = this.shadowRoot.querySelector('#email').value;
+    const password = this.shadowRoot.querySelector('#password').value;
+
+    // Validación básica de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Correo electrónico no válido');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/usuarios/registro/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || data.message || 'Error en el registro');
+      }
+
+      // Guardar el token de autenticación
+      if (data.tokens) {
+        localStorage.setItem('authToken', data.tokens.access);
+      }
+
+      alert('Registro exitoso');
+      window.location.href = '/';
+    } catch (error) {
+      alert(error.message);
+      console.error('Error en el registro:', error);
+    }
   }
 }
 
