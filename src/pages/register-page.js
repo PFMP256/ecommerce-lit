@@ -1,6 +1,17 @@
 import { LitElement, html, css } from 'lit';
 
 export class RegisterPage extends LitElement {
+  static properties = {
+    errorMessage: { type: String },
+    successMessage: { type: String }
+  };
+
+  constructor() {
+    super();
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
   static styles = css`
     .container {
       max-width: 400px;
@@ -57,22 +68,34 @@ export class RegisterPage extends LitElement {
     button:hover {
       opacity: 0.9;
     }
+
+    .mensaje-error {
+      color: red;
+      margin-bottom: 1rem;
+    }
+
+    .mensaje-confirmacion {
+      color: green;
+      margin-bottom: 1rem;
+    }
   `;
 
   render() {
     return html`
       <div class="container">
         <h1>Registro</h1>
-        <form @submit=${this._handleSubmit}>
+        ${this.errorMessage ? html`<div class="mensaje-error">${this.errorMessage}</div>` : ''}
+        ${this.successMessage ? html`<div class="mensaje-confirmacion">${this.successMessage}</div>` : ''}
+        <form id="registro" @submit=${this._handleSubmit}>
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" required>
+            <input type="email" name="email" id="email" required>
           </div>
           <div class="form-group">
             <label for="password">Contraseña</label>
-            <input type="password" id="password" required>
+            <input type="password" name="password" id="password" required>
           </div>
-          <button type="submit">Registrarse</button>
+          <button type="submit">Registrar</button>
         </form>
       </div>
     `;
@@ -87,7 +110,7 @@ export class RegisterPage extends LitElement {
     // Validación básica de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert('Correo electrónico no válido');
+      this.errorMessage = 'Correo electrónico no válido';
       return;
     }
 
@@ -106,15 +129,16 @@ export class RegisterPage extends LitElement {
         throw new Error(data.detail || data.message || 'Error en el registro');
       }
 
-      // Guardar el token de autenticación
       if (data.tokens) {
         localStorage.setItem('authToken', data.tokens.access);
       }
 
-      alert('Registro exitoso');
-      window.location.href = '/';
+      this.successMessage = 'Registro exitoso';
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
     } catch (error) {
-      alert(error.message);
+      this.errorMessage = error.message;
       console.error('Error en el registro:', error);
     }
   }
